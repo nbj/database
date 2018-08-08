@@ -1,0 +1,8 @@
+/.idea
+/public
+/config
+/bootstrap
+/routes
+/vendor
+.php_cs.cache
+.DS_Store
