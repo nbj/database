@@ -18,6 +18,7 @@ class MysqlConnectionTest extends TestCase
         // a docker-compose.yml file is provided
         // simply run 'docker-compose up -d'
         $connection = new MysqlConnection([
+            'driver'   => 'mysql',
             'host'     => '127.0.0.1',
             'port'     => '3306',
             'username' => 'www',

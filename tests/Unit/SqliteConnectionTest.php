@@ -14,7 +14,8 @@ class SqliteConnectionTest extends TestCase
     public function it_can_be_newed_up()
     {
         $connection = new SqliteConnection([
-            'database' => ':memory:'
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
         ]);
 
         $this->assertInstanceOf(SqliteConnection::class, $connection);
