@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Nbj\Database\Exception\DatabaseConnectionWasNotFoundException;
 use PDO;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +11,7 @@ use Nbj\Database\Connection\Connection;
 use Nbj\Database\Exception\InvalidConfigurationException;
 use Nbj\Database\Exception\DatabaseDriverNotFoundException;
 use Nbj\Database\Exception\NoGlobalDatabaseManagerException;
+use Nbj\Database\Exception\DatabaseConnectionWasNotFoundException;
 
 class DatabaseTest extends TestCase
 {
@@ -117,5 +117,30 @@ class DatabaseTest extends TestCase
         $this->assertNull($manager);
     }
 
+    /** @test */
+    public function the_manager_can_get_connections_statically_once_a_global_manager_has_been_set()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
 
+        $connection = DatabaseManager::connection('default');
+
+        $this->assertInstanceOf(Connection::class, $connection);
+        $this->assertInstanceOf(Sqlite::class, $connection);
+    }
+
+    /** @test */
+    public function the_static_connection_method_defaults_to_the_default_connection_if_no_name_is_passed_to_it()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
+
+        $connection = DatabaseManager::connection();
+
+        $this->assertEquals('default', $connection->getName());
+        $this->assertInstanceOf(Connection::class, $connection);
+        $this->assertInstanceOf(Sqlite::class, $connection);
+    }
 }

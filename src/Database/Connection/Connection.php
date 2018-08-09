@@ -19,6 +19,13 @@ abstract class Connection
     protected $config;
 
     /**
+     * Holds the name of the connection
+     *
+     * @var string $name
+     */
+    protected $name;
+
+    /**
      * Connection constructor.
      *
      * @param array $config
@@ -39,6 +46,30 @@ abstract class Connection
     public function getPdo()
     {
         return $this->pdo;
+    }
+
+    /**
+     * Sets the name of the connection
+     *
+     * @param string $name
+     *
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Gets the name of the connection
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

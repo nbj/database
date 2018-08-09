@@ -45,6 +45,21 @@ class DatabaseManager
     }
 
     /**
+     * Gets a specific connection statically, use the default connection as default
+     *
+     * @param string $connectionName
+     *
+     * @return Connection\Connection
+     *
+     * @throws Exception\DatabaseConnectionWasNotFoundException
+     * @throws Exception\NoGlobalDatabaseManagerException
+     */
+    public static function connection($connectionName = 'default')
+    {
+        return self::getGlobal()->getConnection($connectionName);
+    }
+
+    /**
      * Adds a connection to the manager
      *
      * @param array $config
@@ -69,6 +84,7 @@ class DatabaseManager
 
         // Create a new connection instance of the driver
         $this->connections[$name] = new $this->drivers[$config['driver']]($config);
+        $this->connections[$name]->setName($name);
 
         return $this;
     }
