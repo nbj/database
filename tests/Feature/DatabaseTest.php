@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Nbj\Database\Exception\DatabaseConnectionWasNotFoundException;
 use PDO;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ class DatabaseTest extends TestCase
         $manager->addConnection([
             'driver'   => 'sqlite',
             'database' => ':memory:'
-        ], true);
+        ]);
 
         $this->assertInstanceOf(Connection::class, $manager->getDefaultConnection());
         $this->assertInstanceOf(Sqlite::class, $manager->getDefaultConnection());
@@ -44,7 +45,7 @@ class DatabaseTest extends TestCase
         $manager->addConnection([
             'driver'   => 'sqlite',
             'database' => ':memory:'
-        ], true);
+        ]);
 
         $connection = $manager->getDefaultConnection();
 
@@ -61,7 +62,7 @@ class DatabaseTest extends TestCase
 
         $manager->addConnection([
             'database' => ':memory:'
-        ], true);
+        ]);
     }
 
     /** @test */
@@ -74,7 +75,18 @@ class DatabaseTest extends TestCase
 
         $manager->addConnection([
             'driver' => 'this-is-not-a-database-driver'
-        ], true);
+        ]);
+    }
+
+    /** @test */
+    public function the_database_manager_throws_an_exception_when_trying_to_get_a_non_existing_connection()
+    {
+        $this->expectExceptionMessage('DatabaseConnection: some-non-existing-connection was not found.');
+        $this->expectException(DatabaseConnectionWasNotFoundException::class);
+
+        $manager = new DatabaseManager;
+
+        $manager->getConnection('some-non-existing-connection');
     }
 
     /** @test */
@@ -104,4 +116,6 @@ class DatabaseTest extends TestCase
 
         $this->assertNull($manager);
     }
+
+
 }

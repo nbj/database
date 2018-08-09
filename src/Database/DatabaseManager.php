@@ -2,10 +2,6 @@
 
 namespace Nbj\Database;
 
-use Nbj\Database\Exception\InvalidConfigurationException;
-use Nbj\Database\Exception\DatabaseDriverNotFoundException;
-use Nbj\Database\Exception\NoGlobalDatabaseManagerException;
-
 class DatabaseManager
 {
     /**
@@ -26,13 +22,6 @@ class DatabaseManager
     ];
 
     /**
-     * Holds the default database connection
-     *
-     * @var Connection\Connection $defaultConnection
-     */
-    protected $defaultConnection;
-
-    /**
      * Holds all registered database connections
      *
      * @var array $connections
@@ -44,7 +33,7 @@ class DatabaseManager
      *
      * @return DatabaseManager
      *
-     * @throws NoGlobalDatabaseManagerException
+     * @throws Exception\NoGlobalDatabaseManagerException
      */
     public static function getGlobal()
     {
@@ -52,52 +41,66 @@ class DatabaseManager
             return self::$instance;
         }
 
-        throw new NoGlobalDatabaseManagerException;
+        throw new Exception\NoGlobalDatabaseManagerException;
     }
 
     /**
      * Adds a connection to the manager
      *
      * @param array $config
-     * @param bool $defaultConnection
+     * @param string $name
      *
      * @return $this
      *
-     * @throws DatabaseDriverNotFoundException
-     * @throws InvalidConfigurationException
+     * @throws Exception\DatabaseDriverNotFoundException
+     * @throws Exception\InvalidConfigurationException
      */
-    public function addConnection(array $config, $defaultConnection = false)
+    public function addConnection(array $config, $name = 'default')
     {
         // Make sure configuration contains which driver to use
         if (!isset($config['driver'])) {
-            throw new InvalidConfigurationException('No "driver" key not found in config');
+            throw new Exception\InvalidConfigurationException('No "driver" key not found in config');
         }
 
         // Make sure that driver actually exists
         if (!array_key_exists($config['driver'], $this->drivers)) {
-            throw new DatabaseDriverNotFoundException($config['driver']);
+            throw new Exception\DatabaseDriverNotFoundException($config['driver']);
         }
 
         // Create a new connection instance of the driver
-        $connection = new $this->drivers[$config['driver']]($config);
-
-        if ($defaultConnection) {
-            $this->defaultConnection = $connection;
-        }
-
-        $this->connections[] = $connection;
+        $this->connections[$name] = new $this->drivers[$config['driver']]($config);
 
         return $this;
+    }
+
+    /**
+     * Gets a specific database connection
+     *
+     * @param string $connectionName
+     *
+     * @return Connection\Connection
+     *
+     * @throws Exception\DatabaseConnectionWasNotFoundException
+     */
+    public function getConnection($connectionName)
+    {
+        if (!array_key_exists($connectionName, $this->connections)) {
+            throw new Exception\DatabaseConnectionWasNotFoundException($connectionName);
+        }
+
+        return $this->connections[$connectionName];
     }
 
     /**
      * Gets the default connection
      *
      * @return Connection\Connection
+     *
+     * @throws Exception\DatabaseConnectionWasNotFoundException
      */
     public function getDefaultConnection()
     {
-        return $this->defaultConnection;
+        return $this->getConnection('default');
     }
 
     /**
