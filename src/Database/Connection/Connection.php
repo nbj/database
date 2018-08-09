@@ -2,6 +2,8 @@
 
 namespace Nbj\Database\Connection;
 
+use Nbj\Database\QueryBuilder;
+
 abstract class Connection
 {
     /**
@@ -72,6 +74,28 @@ abstract class Connection
         return $this->name;
     }
 
+    /**
+     * Gets the driver name for the connection
+     *
+     * @return string
+     */
+    public function getDriver()
+    {
+        return get_class($this);
+    }
+
+    /**
+     * Initiates a new query
+     *
+     * @return QueryBuilder
+     *
+     * @throws \Nbj\Database\Exception\GrammarDoesNotExistException
+     */
+    public function newQuery()
+    {
+        return new QueryBuilder($this);
+    }
+    
     /**
      * Creates the PDO connection
      *

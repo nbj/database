@@ -7,7 +7,7 @@ use Exception;
 class NoGlobalDatabaseManagerException extends Exception
 {
     /**
-     * InvalidConfigurationException constructor.
+     * NoGlobalDatabaseManagerException constructor.
      */
     public function __construct()
     {

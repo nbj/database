@@ -5,21 +5,21 @@ namespace Nbj\Database;
 class DatabaseManager
 {
     /**
+     * Holds a map over registered database drivers
+     *
+     * @var array $drivers
+     */
+    protected static $drivers = [
+        'mysql'  => Connection\Mysql::class,
+        'sqlite' => Connection\Sqlite::class,
+    ];
+
+    /**
      * Holds the Manager instance once set as global
      *
      * @var DatabaseManager $instance
      */
     protected static $instance;
-
-    /**
-     * Holds a map over registered database drivers
-     *
-     * @var array $drivers
-     */
-    protected $drivers = [
-        'mysql'  => Connection\Mysql::class,
-        'sqlite' => Connection\Sqlite::class,
-    ];
 
     /**
      * Holds all registered database connections
@@ -78,12 +78,12 @@ class DatabaseManager
         }
 
         // Make sure that driver actually exists
-        if (!array_key_exists($config['driver'], $this->drivers)) {
+        if (!array_key_exists($config['driver'], self::$drivers)) {
             throw new Exception\DatabaseDriverNotFoundException($config['driver']);
         }
 
         // Create a new connection instance of the driver
-        $this->connections[$name] = new $this->drivers[$config['driver']]($config);
+        $this->connections[$name] = new self::$drivers[$config['driver']]($config);
         $this->connections[$name]->setName($name);
 
         return $this;

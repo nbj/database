@@ -7,7 +7,7 @@ use Exception;
 class DatabaseDriverNotFoundException extends Exception
 {
     /**
-     * InvalidConfigurationException constructor.
+     * DatabaseDriverNotFoundException constructor.
      *
      * @param string $driver
      */

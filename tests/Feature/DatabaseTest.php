@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use PDO;
 use Exception;
+use Nbj\Database\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\DatabaseManager;
 use Nbj\Database\Connection\Sqlite;
@@ -142,5 +143,18 @@ class DatabaseTest extends TestCase
         $this->assertEquals('default', $connection->getName());
         $this->assertInstanceOf(Connection::class, $connection);
         $this->assertInstanceOf(Sqlite::class, $connection);
+    }
+
+    /** @test */
+    public function a_database_connection_can_initiate_a_new_query()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $this->assertInstanceOf(QueryBuilder::class, $query);
+        $this->assertInstanceOf(Sqlite::class, $query->getConnection());
     }
 }

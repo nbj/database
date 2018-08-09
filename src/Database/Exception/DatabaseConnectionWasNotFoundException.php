@@ -7,7 +7,7 @@ use Exception;
 class DatabaseConnectionWasNotFoundException extends Exception
 {
     /**
-     * InvalidConfigurationException constructor.
+     * DatabaseConnectionWasNotFoundException constructor.
      *
      * @param string $connection
      */
