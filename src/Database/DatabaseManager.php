@@ -83,8 +83,10 @@ class DatabaseManager
         }
 
         // Create a new connection instance of the driver
-        $this->connections[$name] = new self::$drivers[$config['driver']]($config);
-        $this->connections[$name]->setName($name);
+        $driverInstance = new self::$drivers[$config['driver']]($config);
+        $driverInstance->setName($name);
+
+        $this->connections[$name] = $driverInstance;
 
         return $this;
     }
