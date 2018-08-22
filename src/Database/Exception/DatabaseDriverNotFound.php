@@ -4,7 +4,7 @@ namespace Nbj\Database\Exception;
 
 use Exception;
 
-class DatabaseDriverNotFoundException extends Exception
+class DatabaseDriverNotFound extends Exception
 {
     /**
      * DatabaseDriverNotFoundException constructor.

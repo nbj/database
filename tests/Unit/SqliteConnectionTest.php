@@ -5,8 +5,8 @@ namespace Tests\Unit;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\Connection\Connection;
+use Nbj\Database\Exception\InvalidConfiguration;
 use Nbj\Database\Connection\Sqlite as SqliteConnection;
-use Nbj\Database\Exception\InvalidConfigurationException;
 
 class SqliteConnectionTest extends TestCase
 {
@@ -31,7 +31,7 @@ class SqliteConnectionTest extends TestCase
             $connection = new SqliteConnection([]);
         } catch (Exception $exception) {
             $this->assertEquals('No "database" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);

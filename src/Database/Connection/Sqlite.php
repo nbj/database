@@ -3,7 +3,7 @@
 namespace Nbj\Database\Connection;
 
 use PDO;
-use Nbj\Database\Exception\InvalidConfigurationException;
+use Nbj\Database\Exception\InvalidConfiguration;
 
 class Sqlite extends Connection
 {
@@ -14,12 +14,12 @@ class Sqlite extends Connection
      *
      * @return void
      *
-     * @throws InvalidConfigurationException
+     * @throws InvalidConfiguration
      */
     public function connect(array $options = [])
     {
         if (!isset($this->config['database'])) {
-            throw new InvalidConfigurationException('No "database" key not found in config');
+            throw new InvalidConfiguration('No "database" key not found in config');
         }
 
         $dsn = sprintf('sqlite:%s', $this->config['database']);

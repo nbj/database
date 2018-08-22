@@ -3,7 +3,7 @@
 namespace Nbj\Database;
 
 use Nbj\Database\Grammar\Grammar;
-use Nbj\Database\Exception\GrammarDoesNotExistException;
+use Nbj\Database\Exception\GrammarDoesNotExist;
 
 class QueryBuilder
 {
@@ -36,14 +36,14 @@ class QueryBuilder
      *
      * @param Connection\Connection $connection
      *
-     * @throws GrammarDoesNotExistException
+     * @throws GrammarDoesNotExist
      */
     public function __construct(Connection\Connection $connection)
     {
         $this->setConnection($connection);
 
         if (!array_key_exists($connection->getDriver(), self::$grammars)) {
-            throw new GrammarDoesNotExistException($connection->getDriver());
+            throw new GrammarDoesNotExist($connection->getDriver());
         }
     }
 

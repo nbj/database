@@ -3,7 +3,7 @@
 namespace Nbj\Database\Connection;
 
 use PDO;
-use Nbj\Database\Exception\InvalidConfigurationException;
+use Nbj\Database\Exception\InvalidConfiguration;
 
 class Mysql extends Connection
 {
@@ -14,28 +14,28 @@ class Mysql extends Connection
      *
      * @return void
      *
-     * @throws InvalidConfigurationException
+     * @throws InvalidConfiguration
      */
     public function connect(array $options = [])
     {
         if (!isset($this->config['database'])) {
-            throw new InvalidConfigurationException('No "database" key not found in config');
+            throw new InvalidConfiguration('No "database" key not found in config');
         }
 
         if (!isset($this->config['host'])) {
-            throw new InvalidConfigurationException('No "host" key not found in config');
+            throw new InvalidConfiguration('No "host" key not found in config');
         }
 
         if (!isset($this->config['port'])) {
-            throw new InvalidConfigurationException('No "port" key not found in config');
+            throw new InvalidConfiguration('No "port" key not found in config');
         }
 
         if (!isset($this->config['username'])) {
-            throw new InvalidConfigurationException('No "username" key not found in config');
+            throw new InvalidConfiguration('No "username" key not found in config');
         }
 
         if (!isset($this->config['password'])) {
-            throw new InvalidConfigurationException('No "password" key not found in config');
+            throw new InvalidConfiguration('No "password" key not found in config');
         }
 
         $host = $this->config['host'];

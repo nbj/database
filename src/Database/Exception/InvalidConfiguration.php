@@ -4,7 +4,7 @@ namespace Nbj\Database\Exception;
 
 use Exception;
 
-class InvalidConfigurationException extends Exception
+class InvalidConfiguration extends Exception
 {
     /**
      * InvalidConfigurationException constructor.

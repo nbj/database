@@ -33,7 +33,7 @@ class DatabaseManager
      *
      * @return DatabaseManager
      *
-     * @throws Exception\NoGlobalDatabaseManagerException
+     * @throws Exception\NoGlobalDatabaseManager
      */
     public static function getGlobal()
     {
@@ -41,7 +41,7 @@ class DatabaseManager
             return self::$instance;
         }
 
-        throw new Exception\NoGlobalDatabaseManagerException;
+        throw new Exception\NoGlobalDatabaseManager;
     }
 
     /**
@@ -51,8 +51,8 @@ class DatabaseManager
      *
      * @return Connection\Connection
      *
-     * @throws Exception\DatabaseConnectionWasNotFoundException
-     * @throws Exception\NoGlobalDatabaseManagerException
+     * @throws Exception\DatabaseConnectionWasNotFound
+     * @throws Exception\NoGlobalDatabaseManager
      */
     public static function connection($connectionName = 'default')
     {
@@ -67,19 +67,19 @@ class DatabaseManager
      *
      * @return $this
      *
-     * @throws Exception\DatabaseDriverNotFoundException
-     * @throws Exception\InvalidConfigurationException
+     * @throws Exception\DatabaseDriverNotFound
+     * @throws Exception\InvalidConfiguration
      */
     public function addConnection(array $config, $name = 'default')
     {
         // Make sure configuration contains which driver to use
         if (!isset($config['driver'])) {
-            throw new Exception\InvalidConfigurationException('No "driver" key not found in config');
+            throw new Exception\InvalidConfiguration('No "driver" key not found in config');
         }
 
         // Make sure that driver actually exists
         if (!array_key_exists($config['driver'], self::$drivers)) {
-            throw new Exception\DatabaseDriverNotFoundException($config['driver']);
+            throw new Exception\DatabaseDriverNotFound($config['driver']);
         }
 
         // Create a new connection instance of the driver
@@ -96,12 +96,12 @@ class DatabaseManager
      *
      * @return Connection\Connection
      *
-     * @throws Exception\DatabaseConnectionWasNotFoundException
+     * @throws Exception\DatabaseConnectionWasNotFound
      */
     public function getConnection($connectionName)
     {
         if (!array_key_exists($connectionName, $this->connections)) {
-            throw new Exception\DatabaseConnectionWasNotFoundException($connectionName);
+            throw new Exception\DatabaseConnectionWasNotFound($connectionName);
         }
 
         return $this->connections[$connectionName];
@@ -112,7 +112,7 @@ class DatabaseManager
      *
      * @return Connection\Connection
      *
-     * @throws Exception\DatabaseConnectionWasNotFoundException
+     * @throws Exception\DatabaseConnectionWasNotFound
      */
     public function getDefaultConnection()
     {

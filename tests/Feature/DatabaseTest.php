@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Nbj\Database\DatabaseManager;
 use Nbj\Database\Connection\Sqlite;
 use Nbj\Database\Connection\Connection;
-use Nbj\Database\Exception\InvalidConfigurationException;
-use Nbj\Database\Exception\DatabaseDriverNotFoundException;
-use Nbj\Database\Exception\NoGlobalDatabaseManagerException;
-use Nbj\Database\Exception\DatabaseConnectionWasNotFoundException;
+use Nbj\Database\Exception\InvalidConfiguration;
+use Nbj\Database\Exception\DatabaseDriverNotFound;
+use Nbj\Database\Exception\NoGlobalDatabaseManager;
+use Nbj\Database\Exception\DatabaseConnectionWasNotFound;
 
 class DatabaseTest extends TestCase
 {
@@ -57,7 +57,7 @@ class DatabaseTest extends TestCase
     public function the_database_manager_throws_an_exception_if_the_provided_configuration_does_not_contain_a_driver_key()
     {
         $this->expectExceptionMessage('No "driver" key not found in config');
-        $this->expectException(InvalidConfigurationException::class);
+        $this->expectException(InvalidConfiguration::class);
 
         $manager = new DatabaseManager;
 
@@ -70,7 +70,7 @@ class DatabaseTest extends TestCase
     public function the_database_manger_throws_an_exception_if_a_driver_does_not_exist_for_the_driver_key()
     {
         $this->expectExceptionMessage('Database driver: this-is-not-a-database-driver was not found.');
-        $this->expectException(DatabaseDriverNotFoundException::class);
+        $this->expectException(DatabaseDriverNotFound::class);
 
         $manager = new DatabaseManager;
 
@@ -83,7 +83,7 @@ class DatabaseTest extends TestCase
     public function the_database_manager_throws_an_exception_when_trying_to_get_a_non_existing_connection()
     {
         $this->expectExceptionMessage('DatabaseConnection: some-non-existing-connection was not found.');
-        $this->expectException(DatabaseConnectionWasNotFoundException::class);
+        $this->expectException(DatabaseConnectionWasNotFound::class);
 
         $manager = new DatabaseManager;
 
@@ -112,7 +112,7 @@ class DatabaseTest extends TestCase
             $manager = DatabaseManager::getGlobal();
         } catch (Exception $exception) {
             $this->assertEquals('No global DatabaseManager has been set', $exception->getMessage());
-            $this->assertInstanceOf(NoGlobalDatabaseManagerException::class, $exception);
+            $this->assertInstanceOf(NoGlobalDatabaseManager::class, $exception);
         }
 
         $this->assertNull($manager);

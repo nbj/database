@@ -4,7 +4,7 @@ namespace Nbj\Database\Exception;
 
 use Exception;
 
-class NoGlobalDatabaseManagerException extends Exception
+class NoGlobalDatabaseManager extends Exception
 {
     /**
      * NoGlobalDatabaseManagerException constructor.

@@ -4,7 +4,7 @@ namespace Nbj\Database\Exception;
 
 use Exception;
 
-class DatabaseConnectionWasNotFoundException extends Exception
+class DatabaseConnectionWasNotFound extends Exception
 {
     /**
      * DatabaseConnectionWasNotFoundException constructor.

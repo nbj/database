@@ -4,7 +4,7 @@ namespace Nbj\Database\Exception;
 
 use Exception;
 
-class GrammarDoesNotExistException extends Exception
+class GrammarDoesNotExist extends Exception
 {
     /**
      * GrammarDoesNotExistException constructor.

@@ -5,8 +5,8 @@ namespace Tests\Unit;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\Connection\Connection;
+use Nbj\Database\Exception\InvalidConfiguration;
 use Nbj\Database\Connection\Mysql as MysqlConnection;
-use Nbj\Database\Exception\InvalidConfigurationException;
 
 class MysqlConnectionTest extends TestCase
 {
@@ -44,7 +44,7 @@ class MysqlConnectionTest extends TestCase
             ]);
         } catch (Exception $exception) {
             $this->assertEquals('No "host" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);
@@ -64,7 +64,7 @@ class MysqlConnectionTest extends TestCase
             ]);
         } catch (Exception $exception) {
             $this->assertEquals('No "port" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);
@@ -84,7 +84,7 @@ class MysqlConnectionTest extends TestCase
             ]);
         } catch (Exception $exception) {
             $this->assertEquals('No "username" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);
@@ -104,7 +104,7 @@ class MysqlConnectionTest extends TestCase
             ]);
         } catch (Exception $exception) {
             $this->assertEquals('No "password" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);
@@ -124,7 +124,7 @@ class MysqlConnectionTest extends TestCase
             ]);
         } catch (Exception $exception) {
             $this->assertEquals('No "database" key not found in config', $exception->getMessage());
-            $this->assertInstanceOf(InvalidConfigurationException::class, $exception);
+            $this->assertInstanceOf(InvalidConfiguration::class, $exception);
         }
 
         $this->assertNull($connection);

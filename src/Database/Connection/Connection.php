@@ -89,7 +89,7 @@ abstract class Connection
      *
      * @return QueryBuilder
      *
-     * @throws \Nbj\Database\Exception\GrammarDoesNotExistException
+     * @throws \Nbj\Database\Exception\GrammarDoesNotExist
      */
     public function newQuery()
     {
