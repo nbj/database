@@ -2,7 +2,6 @@
 
 namespace Nbj\Database;
 
-use Nbj\Database\Grammar\Grammar;
 use Nbj\Database\Exception\GrammarDoesNotExist;
 
 class QueryBuilder
@@ -40,11 +39,14 @@ class QueryBuilder
      */
     public function __construct(Connection\Connection $connection)
     {
-        $this->setConnection($connection);
-
         if (!array_key_exists($connection->getDriver(), self::$grammars)) {
             throw new GrammarDoesNotExist($connection->getDriver());
         }
+
+        $grammar = new self::$grammars[$connection->getDriver()]();
+
+        $this->setConnection($connection);
+        $this->setGrammar($grammar);
     }
 
     /**
@@ -67,6 +69,30 @@ class QueryBuilder
     public function setConnection(Connection\Connection $connection)
     {
         $this->connection = $connection;
+
+        return $this;
+    }
+
+    /**
+     * Gets the grammar use for the query builder instance
+     *
+     * @return Grammar
+     */
+    public function getGrammar()
+    {
+        return $this->grammar;
+    }
+
+    /**
+     * Sets the grammar to use for this query builder
+     *
+     * @param Grammar\Grammar $grammar
+     *
+     * @return $this
+     */
+    public function setGrammar(Grammar\Grammar $grammar)
+    {
+        $this->grammar = $grammar;
 
         return $this;
     }

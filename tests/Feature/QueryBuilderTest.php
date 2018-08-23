@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Nbj\Database\Grammar;
 use Nbj\Database\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\Connection\Sqlite;
@@ -31,6 +32,16 @@ class QueryBuilderTest extends TestCase
         $query = new QueryBuilder($connection);
 
         $this->assertNull($query);
+    }
+
+    /** @test */
+    public function it_has_a_grammar_based_on_the_connection_driver()
+    {
+        $connection = $this->createConnection();
+
+        $query = new QueryBuilder($connection);
+
+        $this->assertInstanceOf(Grammar\Sqlite::class, $query->getGrammar());
     }
 
     /**
