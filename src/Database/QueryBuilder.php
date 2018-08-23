@@ -43,7 +43,7 @@ class QueryBuilder
             throw new GrammarDoesNotExist($connection->getDriver());
         }
 
-        $grammar = new self::$grammars[$connection->getDriver()]();
+        $grammar = new self::$grammars[$connection->getDriver()]($this);
 
         $this->setConnection($connection);
         $this->setGrammar($grammar);
