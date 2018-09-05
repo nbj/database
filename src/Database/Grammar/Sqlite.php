@@ -13,6 +13,24 @@ class Sqlite extends Grammar
      */
     protected $builder;
 
+    /**
+     * Holds translations for data types
+     *
+     * @var array $typeTranslations
+     */
+    protected $typeTranslations = [
+        'integer'  => 'INTEGER',
+        'string'   => 'VARCHAR',
+        'text'     => 'TEXT',
+        'datetime' => 'DATETIME',
+        'boolean'  => 'BOOLEAN',
+    ];
+
+    /**
+     * Sqlite constructor.
+     *
+     * @param QueryBuilder $builder
+     */
     public function __construct(QueryBuilder $builder)
     {
         $this->builder = $builder;

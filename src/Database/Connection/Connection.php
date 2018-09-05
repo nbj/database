@@ -2,6 +2,7 @@
 
 namespace Nbj\Database\Connection;
 
+use PDO;
 use Nbj\Database\QueryBuilder;
 
 abstract class Connection

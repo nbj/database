@@ -2,12 +2,20 @@
 
 namespace Nbj\Database\Schema;
 
+use Closure;
 use Nbj\Database\Schema\Component\Index;
 use Nbj\Database\Schema\Component\Column;
 use Nbj\Database\Schema\Component\Constraint;
 
 class Blueprint
 {
+    /**
+     * Holds the name of the table
+     *
+     * @var string $tableName
+     */
+    protected $table;
+
     /**
      * Holds all columns added to the table blueprint
      *
@@ -28,6 +36,26 @@ class Blueprint
      * @var array $constraints
      */
     protected $constraints = [];
+
+    public static function create($table, Closure $closure)
+    {
+        $blueprint = new Blueprint;
+        $blueprint->table = $table;
+
+        $closure($blueprint);
+
+        return $blueprint;
+    }
+
+    /**
+     * Gets the name of the blueprint table
+     *
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
 
     /**
      * Gets all columns added to the blueprint

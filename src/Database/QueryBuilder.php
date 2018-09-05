@@ -2,7 +2,10 @@
 
 namespace Nbj\Database;
 
+use PDO;
+use Nbj\Database\Exception\NoTableWasSet;
 use Nbj\Database\Exception\GrammarDoesNotExist;
+use Nbj\Database\Exception\FailedToExecuteQuery;
 
 class QueryBuilder
 {
@@ -19,16 +22,32 @@ class QueryBuilder
     /**
      * Holds the connection to send the query to
      *
-     * @var Connection $connection
+     * @var Connection\Connection $connection
      */
     protected $connection;
 
     /**
      * Holds the grammar once resolved
      *
-     * @var Grammar $grammar
+     * @var Grammar\Grammar $grammar
      */
     protected $grammar;
+
+    /**
+     * Holds the table for the query
+     *
+     * @var string $table
+     */
+    protected $table;
+
+    /**
+     * Holds all columns for the query
+     *
+     * @var array $columns
+     */
+    protected $columns = [
+        '*'
+    ];
 
     /**
      * QueryBuilder constructor.
@@ -52,7 +71,7 @@ class QueryBuilder
     /**
      * Gets the connection
      *
-     * @return Connection
+     * @return Connection\Connection
      */
     public function getConnection()
     {
@@ -76,7 +95,7 @@ class QueryBuilder
     /**
      * Gets the grammar use for the query builder instance
      *
-     * @return Grammar
+     * @return Grammar\Grammar
      */
     public function getGrammar()
     {
@@ -95,5 +114,67 @@ class QueryBuilder
         $this->grammar = $grammar;
 
         return $this;
+    }
+
+    /**
+     * Sets the table for the query
+     *
+     * @param string $table
+     *
+     * @return QueryBuilder
+     */
+    public function table($table)
+    {
+        $this->table = $table;
+
+        return $this;
+    }
+
+    public function select(array $columns)
+    {
+        $this->columns = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Performs a select * query on a specified table
+     *
+     * @return array
+     *
+     * @throws FailedToExecuteQuery
+     * @throws NoTableWasSet
+     */
+    public function all()
+    {
+        $this->columns = ['*'];
+
+        return $this->get();
+    }
+
+    /**
+     * Performs a select query on a specified table with the specified columns
+     *
+     * @return array
+     *
+     * @throws FailedToExecuteQuery
+     * @throws NoTableWasSet
+     */
+    public function get()
+    {
+        if (!$this->table) {
+            throw new NoTableWasSet;
+        }
+
+        $grammar = $this->getGrammar();
+        $sql = $grammar->compileSelect($this->table, $this->columns);
+        $pdo = $this->getConnection()->getPdo();
+        $statement = $pdo->prepare($sql);
+
+        if (!$statement->execute()) {
+            throw new FailedToExecuteQuery($statement);
+        }
+
+        return $statement->fetchAll(PDO::FETCH_OBJ);
     }
 }

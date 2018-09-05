@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Nbj\Database\DatabaseManager;
 use Nbj\Database\Connection\Sqlite;
 use Nbj\Database\Connection\Connection;
+use Nbj\Database\Exception\NoTableWasSet;
 use Nbj\Database\Exception\InvalidConfiguration;
 use Nbj\Database\Exception\DatabaseDriverNotFound;
 use Nbj\Database\Exception\NoGlobalDatabaseManager;
@@ -156,5 +157,86 @@ class DatabaseTest extends TestCase
 
         $this->assertInstanceOf(QueryBuilder::class, $query);
         $this->assertInstanceOf(Sqlite::class, $query->getConnection());
+    }
+
+    /** @test */
+    public function it_can_get_all_rows_from_a_table()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $result = $query
+            ->table('people')
+            ->all();
+
+        $this->assertCount(2, $result);
+        $first = array_shift($result);
+
+        $this->assertObjectHasAttribute('first_name', $first);
+        $this->assertObjectHasAttribute('last_name', $first);
+
+        $this->assertEquals('john', $first->first_name);
+        $this->assertEquals('doe', $first->last_name);
+    }
+
+    /** @test */
+    public function it_can_get_all_rows_with_select_columns_from_a_table()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $result = $query
+            ->table('people')
+            ->select(['first_name'])
+            ->get();
+
+        $this->assertCount(2, $result);
+        $first = array_shift($result);
+
+        $this->assertObjectHasAttribute('first_name', $first);
+        $this->assertObjectNotHasAttribute('last_name', $first);
+
+        $this->assertEquals('john', $first->first_name);
+    }
+
+    /** @test */
+    public function it_takes_exception_to_calling_all_if_no_table_is_set()
+    {
+        $this->expectException(NoTableWasSet::class);
+        $this->expectExceptionMessage('No table was set for QueryBuilder');
+
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $query->all();
+    }
+
+    /**
+     * Prepares a table of people for tests
+     *
+     * @throws DatabaseConnectionWasNotFound
+     * @throws NoGlobalDatabaseManager
+     */
+    protected function prepareTestTableWithData()
+    {
+        $createTableSql = "create table people (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT NOT NULL, last_name TEXT NOT NULL)";
+        $statement = DatabaseManager::connection()->getPdo()->prepare($createTableSql);
+        $statement->execute();
+
+        $insertSql = "insert into people (first_name,last_name) values ('john','doe'),('jane','doe')";
+        $statement = DatabaseManager::connection()->getPdo()->prepare($insertSql);
+        $statement->execute();
     }
 }
