@@ -122,9 +122,7 @@ class DatabaseTest extends TestCase
     /** @test */
     public function the_manager_can_get_connections_statically_once_a_global_manager_has_been_set()
     {
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
 
         $connection = DatabaseManager::connection('default');
 
@@ -135,9 +133,7 @@ class DatabaseTest extends TestCase
     /** @test */
     public function the_static_connection_method_defaults_to_the_default_connection_if_no_name_is_passed_to_it()
     {
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
 
         $connection = DatabaseManager::connection();
 
@@ -149,9 +145,7 @@ class DatabaseTest extends TestCase
     /** @test */
     public function a_database_connection_can_initiate_a_new_query()
     {
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
 
         $query = DatabaseManager::connection()->newQuery();
 
@@ -162,9 +156,7 @@ class DatabaseTest extends TestCase
     /** @test */
     public function it_can_get_all_rows_from_a_table()
     {
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
         $this->prepareTestTableWithData();
 
         $query = DatabaseManager::connection()->newQuery();
@@ -186,9 +178,7 @@ class DatabaseTest extends TestCase
     /** @test */
     public function it_can_get_all_rows_with_select_columns_from_a_table()
     {
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
         $this->prepareTestTableWithData();
 
         $query = DatabaseManager::connection()->newQuery();
@@ -213,9 +203,7 @@ class DatabaseTest extends TestCase
         $this->expectException(NoTableWasSet::class);
         $this->expectExceptionMessage('No table was set for QueryBuilder');
 
-        (new DatabaseManager)
-            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
-            ->setAsGlobal();
+        $this->registerGlobalDatabaseManager();
         $this->prepareTestTableWithData();
 
         $query = DatabaseManager::connection()->newQuery();
@@ -238,5 +226,18 @@ class DatabaseTest extends TestCase
         $insertSql = "insert into people (first_name,last_name) values ('john','doe'),('jane','doe')";
         $statement = DatabaseManager::connection()->getPdo()->prepare($insertSql);
         $statement->execute();
+    }
+
+    /**
+     * Registers a global DatabaseManger with an sqlite connection
+     *
+     * @throws DatabaseDriverNotFound
+     * @throws InvalidConfiguration
+     */
+    protected function registerGlobalDatabaseManager()
+    {
+        (new DatabaseManager)
+            ->addConnection(['driver' => 'sqlite', 'database' => ':memory:'])
+            ->setAsGlobal();
     }
 }
