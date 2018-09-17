@@ -130,6 +130,13 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Sets which columns to select
+     *
+     * @param array $columns
+     *
+     * @return $this
+     */
     public function select(array $columns)
     {
         $this->columns = $columns;
