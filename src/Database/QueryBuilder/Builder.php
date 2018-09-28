@@ -1,13 +1,16 @@
 <?php
 
-namespace Nbj\Database;
+namespace Nbj\Database\QueryBuilder;
 
 use PDO;
+use Nbj\Database\Grammar;
+use Nbj\Database\Connection;
 use Nbj\Database\Exception\NoTableWasSet;
+use Nbj\Database\Exception\OperatorNotAllowed;
 use Nbj\Database\Exception\GrammarDoesNotExist;
-use Nbj\Database\Exception\FailedToExecuteQuery;
+use Nbj\Database\Exception\FailedToPrepareQuery;
 
-class QueryBuilder
+class Builder
 {
     /**
      * Holds all the registered grammars
@@ -17,6 +20,15 @@ class QueryBuilder
     protected static $grammars = [
         Connection\Sqlite::class => Grammar\Sqlite::class,
         Connection\Mysql::class  => Grammar\Mysql::class,
+    ];
+
+    /**
+     * List of valid operators
+     *
+     * @var array $operators
+     */
+    protected $operators = [
+        '=', '<>', '>=', '<=', '>', '<', '!='
     ];
 
     /**
@@ -48,6 +60,13 @@ class QueryBuilder
     protected $columns = [
         '*'
     ];
+
+    /**
+     * Holds all where clauses
+     *
+     * @var array $whereClauses
+     */
+    protected $whereClauses = [];
 
     /**
      * QueryBuilder constructor.
@@ -121,7 +140,7 @@ class QueryBuilder
      *
      * @param string $table
      *
-     * @return QueryBuilder
+     * @return Builder
      */
     public function table($table)
     {
@@ -145,11 +164,61 @@ class QueryBuilder
     }
 
     /**
+     * Adds a Where clause to the query
+     *
+     * @param string $column
+     * @param string $operator
+     * @param string|null $value
+     *
+     * @return $this
+     *
+     * @throws OperatorNotAllowed
+     */
+    public function where($column, $operator, $value = null)
+    {
+        if (func_num_args() == 2) {
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $this->guardAgainstInvalidOperator($operator);
+
+        $this->whereClauses[] = new WhereClause($column, $operator, $value);
+
+        return $this;
+    }
+
+    /**
+     * Adds a orWhere clause to the query
+     *
+     * @param string $column
+     * @param string $operator
+     * @param string|null $value
+     *
+     * @return $this
+     *
+     * @throws OperatorNotAllowed
+     */
+    public function orWhere($column, $operator, $value = null)
+    {
+        if (func_num_args() == 2) {
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $this->guardAgainstInvalidOperator($operator);
+
+        $this->whereClauses[] = new WhereClause($column, $operator, $value, true);
+
+        return $this;
+    }
+
+    /**
      * Performs a select * query on a specified table
      *
      * @return array
      *
-     * @throws FailedToExecuteQuery
+     * @throws FailedToPrepareQuery
      * @throws NoTableWasSet
      */
     public function all()
@@ -164,24 +233,70 @@ class QueryBuilder
      *
      * @return array
      *
-     * @throws FailedToExecuteQuery
+     * @throws FailedToPrepareQuery
      * @throws NoTableWasSet
      */
     public function get()
     {
+        $this->guardAgainstNoTableBeingSet();
+
+        $sql = $this
+            ->getGrammar()
+            ->compileSelect($this->table, $this->columns, $this->whereClauses);
+
+        $statement = $this
+            ->getConnection()
+            ->getPdo()
+            ->prepare($sql);
+
+        if ($statement === false) {
+            throw new FailedToPrepareQuery($sql);
+        }
+
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Returns the SQL for the query
+     *
+     * @return string
+     *
+     * @throws NoTableWasSet
+     */
+    public function toSql()
+    {
+        $this->guardAgainstNoTableBeingSet();
+
+        return $this
+            ->getGrammar()
+            ->compileSelect($this->table, $this->columns, $this->whereClauses);
+    }
+
+    /**
+     * Throws an exception if an invalid operator is being used
+     *
+     * @param string $operator
+     *
+     * @throws OperatorNotAllowed
+     */
+    protected function guardAgainstInvalidOperator($operator)
+    {
+        if (!in_array($operator, $this->operators)) {
+            throw new OperatorNotAllowed($operator);
+        }
+    }
+
+    /**
+     * Throws an exception if no table has been set
+     *
+     * @throws NoTableWasSet
+     */
+    protected function guardAgainstNoTableBeingSet()
+    {
         if (!$this->table) {
             throw new NoTableWasSet;
         }
-
-        $grammar = $this->getGrammar();
-        $sql = $grammar->compileSelect($this->table, $this->columns);
-        $pdo = $this->getConnection()->getPdo();
-        $statement = $pdo->prepare($sql);
-
-        if (!$statement->execute()) {
-            throw new FailedToExecuteQuery($statement);
-        }
-
-        return $statement->fetchAll(PDO::FETCH_OBJ);
     }
 }

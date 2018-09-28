@@ -3,7 +3,7 @@
 namespace Nbj\Database\Connection;
 
 use PDO;
-use Nbj\Database\QueryBuilder;
+use Nbj\Database\QueryBuilder\Builder;
 
 abstract class Connection
 {
@@ -88,13 +88,13 @@ abstract class Connection
     /**
      * Initiates a new query
      *
-     * @return QueryBuilder
+     * @return Builder
      *
      * @throws \Nbj\Database\Exception\GrammarDoesNotExist
      */
     public function newQuery()
     {
-        return new QueryBuilder($this);
+        return new Builder($this);
     }
     
     /**

@@ -2,14 +2,14 @@
 
 namespace Nbj\Database\Grammar;
 
-use Nbj\Database\QueryBuilder;
+use Nbj\Database\QueryBuilder\Builder;
 
 class Sqlite extends Grammar
 {
     /**
      * Holds the instance of the query builder building the query
      *
-     * @var QueryBuilder
+     * @var Builder
      */
     protected $builder;
 
@@ -29,9 +29,9 @@ class Sqlite extends Grammar
     /**
      * Sqlite constructor.
      *
-     * @param QueryBuilder $builder
+     * @param Builder $builder
      */
-    public function __construct(QueryBuilder $builder)
+    public function __construct(Builder $builder)
     {
         $this->builder = $builder;
     }

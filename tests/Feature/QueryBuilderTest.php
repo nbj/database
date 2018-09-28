@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use Nbj\Database\Grammar;
-use Nbj\Database\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\Connection\Sqlite;
 use Nbj\Database\Connection\Connection;
+use Nbj\Database\QueryBuilder\Builder;
 use Nbj\Database\Exception\GrammarDoesNotExist;
 
 class QueryBuilderTest extends TestCase
@@ -16,7 +16,7 @@ class QueryBuilderTest extends TestCase
     {
         $connection = $this->createConnection();
 
-        $query = new QueryBuilder($connection);
+        $query = new Builder($connection);
         $this->assertInstanceOf(Connection::class, $query->getConnection());
     }
 
@@ -29,7 +29,7 @@ class QueryBuilderTest extends TestCase
         $this->expectException(GrammarDoesNotExist::class);
         $this->expectExceptionMessage('Grammar for connection type: this-is-not-a-valid-driver was not found');
 
-        $query = new QueryBuilder($connection);
+        $query = new Builder($connection);
 
         $this->assertNull($query);
     }
@@ -39,7 +39,7 @@ class QueryBuilderTest extends TestCase
     {
         $connection = $this->createConnection();
 
-        $query = new QueryBuilder($connection);
+        $query = new Builder($connection);
 
         $this->assertInstanceOf(Grammar\Sqlite::class, $query->getGrammar());
     }

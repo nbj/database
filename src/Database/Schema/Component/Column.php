@@ -68,6 +68,13 @@ class Column
     public $hasIndex = false;
 
     /**
+     * Tells whether the columns has a default value
+     *
+     * @var bool $hasDefaultValue
+     */
+    public $hasDefaultValue = false;
+
+    /**
      * Tells the default value of the column
      *
      * @var bool $defaultValue
@@ -169,6 +176,7 @@ class Column
      */
     public function default($value)
     {
+        $this->hasDefaultValue = true;
         $this->defaultValue = $value;
 
         return $this;

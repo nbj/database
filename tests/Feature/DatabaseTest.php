@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use PDO;
 use Exception;
-use Nbj\Database\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Nbj\Database\DatabaseManager;
 use Nbj\Database\Connection\Sqlite;
+use Nbj\Database\QueryBuilder\Builder;
 use Nbj\Database\Connection\Connection;
 use Nbj\Database\Exception\NoTableWasSet;
+use Nbj\Database\Exception\OperatorNotAllowed;
+use Nbj\Database\Exception\FailedToPrepareQuery;
 use Nbj\Database\Exception\InvalidConfiguration;
 use Nbj\Database\Exception\DatabaseDriverNotFound;
 use Nbj\Database\Exception\NoGlobalDatabaseManager;
@@ -149,7 +151,7 @@ class DatabaseTest extends TestCase
 
         $query = DatabaseManager::connection()->newQuery();
 
-        $this->assertInstanceOf(QueryBuilder::class, $query);
+        $this->assertInstanceOf(Builder::class, $query);
         $this->assertInstanceOf(Sqlite::class, $query->getConnection());
     }
 
@@ -198,6 +200,23 @@ class DatabaseTest extends TestCase
     }
 
     /** @test */
+    public function it_takes_exception_to_query_failing()
+    {
+        $this->expectException(FailedToPrepareQuery::class);
+        $this->expectExceptionMessage('Failed to execute query: SELECT not_a_column FROM people');
+
+        $this->registerGlobalDatabaseManager();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $query
+            ->table('people')
+            ->select(['not_a_column'])
+            ->get();
+    }
+
+    /** @test */
     public function it_takes_exception_to_calling_all_if_no_table_is_set()
     {
         $this->expectException(NoTableWasSet::class);
@@ -209,6 +228,84 @@ class DatabaseTest extends TestCase
         $query = DatabaseManager::connection()->newQuery();
 
         $query->all();
+    }
+
+    /** @test */
+    public function it_can_execute_a_select_statement_with_a_where_clause()
+    {
+        $this->registerGlobalDatabaseManager();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $result = $query
+            ->table('people')
+            ->where('first_name', 'john')
+            ->all();
+
+        $this->assertCount(1, $result);
+        $first = array_shift($result);
+
+        $this->assertEquals('john', $first->first_name);
+    }
+
+    /** @test */
+    public function it_can_execute_a_select_statement_with_two_where_clauses()
+    {
+        $this->registerGlobalDatabaseManager();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $result = $query
+            ->table('people')
+            ->where('first_name', 'john')
+            ->where('id', 1)
+            ->all();
+
+        $this->assertCount(1, $result);
+        $first = array_shift($result);
+
+        $this->assertEquals('john', $first->first_name);
+        $this->assertEquals('doe', $first->last_name);
+    }
+
+    /** @test */
+    public function it_can_execute_a_select_statement_with_or_where_clauses()
+    {
+        $this->registerGlobalDatabaseManager();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $result = $query
+            ->table('people')
+            ->where('first_name', 'john')
+            ->orWhere('id', 1)
+            ->all();
+
+        $this->assertCount(1, $result);
+        $first = array_shift($result);
+
+        $this->assertEquals('john', $first->first_name);
+        $this->assertEquals('doe', $first->last_name);
+    }
+
+    /** @test */
+    public function it_takes_exception_to_using_an_invalid_operator_in_a_where_clause()
+    {
+        $this->registerGlobalDatabaseManager();
+        $this->prepareTestTableWithData();
+
+        $query = DatabaseManager::connection()->newQuery();
+
+        $this->expectExceptionMessage('Operator: invalid-operator is not a valid operator');
+        $this->expectException(OperatorNotAllowed::class);
+
+        $query
+            ->table('people')
+            ->where('first_name', 'invalid-operator', 'john')
+            ->all();
     }
 
     /**
